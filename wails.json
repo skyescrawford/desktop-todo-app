@@ -1,0 +1,12 @@
+{
+  "name": "skyes-app",
+  "outputfilename": "skyes-app",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Aziz",
+    "email": "akashiseijurou414@gmail.com"
+  }
+}
