@@ -1,33 +1,46 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Todo } from "@/App";
+import type { Dispatch, SetStateAction } from "react";
 
-// shadcn/ui does not provide a dedicated <List /> component.
-// Lists are typically composed using semantic HTML + existing primitives.
+type ListProps = {
+  items: Todo[];
+  handleUpdate: Dispatch<SetStateAction<Todo[]>>;
+};
 
-export default function ListExample() {
-  const items = [
-    { id: 1, title: "Fried Rice", desc: "With egg and chicken" },
-    { id: 2, title: "Meatball", desc: "Beef meatballs with soup" },
-    { id: 3, title: "Noodle", desc: "Spicy noodle" },
-  ];
+export default function List({ items, handleUpdate }: ListProps) {
+  function handleClick(id: string) {
+    const copy = items.slice(0);
+    const todoIndex = copy.findIndex((item) => item.id === id);
 
+    copy[todoIndex].completed = !copy[todoIndex].completed;
+    handleUpdate(copy);
+  }
   return (
-    <Card className="w-[360px]">
+    <Card className="w-90">
       <CardContent className="p-0">
-        <ScrollArea className="h-[240px]">
-          <ul className="divide-y">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="p-4 hover:bg-muted/50 cursor-pointer"
+        {/* <ScrollArea className="h-60"> */}
+        <ul className="divide-y">
+          {items.map((item) => (
+            <li
+              onClick={() => handleClick(item.id)}
+              key={item.id}
+              className={`p-4 ${
+                item.completed ? "bg-muted" : "hover:bg-muted/50"
+              } cursor-pointer`}
+            >
+              <div
+                className={` ${
+                  item.completed ? "decoration-dashed" : "text-blue-600"
+                }"font-medium"`}
               >
-                <div className="font-medium">{item.title}</div>
-                <div className="text-sm text-muted-foreground">{item.desc}</div>
-              </li>
-            ))}
-          </ul>
-        </ScrollArea>
+                {item.title}
+              </div>
+              <div className="text-sm text-muted-foreground">{item.desc}</div>
+            </li>
+          ))}
+        </ul>
+        {/* </ScrollArea> */}
       </CardContent>
     </Card>
   );
