@@ -1,19 +1,17 @@
 import { Card, CardContent } from "@/components/ui/card";
 // import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Todo } from "@/App";
 import type { Dispatch, SetStateAction } from "react";
+import { main } from "../../wailsjs/go/models";
 
 type ListProps = {
-  items: Todo[];
-  handleUpdate: Dispatch<SetStateAction<Todo[]>>;
+  items: main.Todo[];
+  handleUpdate: Dispatch<SetStateAction<main.Todo[]>>;
 };
 
 export default function List({ items, handleUpdate }: ListProps) {
-  function handleClick(id: string) {
+  function handleClick() {
     const copy = items.slice(0);
-    const todoIndex = copy.findIndex((item) => item.id === id);
 
-    copy[todoIndex].completed = !copy[todoIndex].completed;
     handleUpdate(copy);
   }
   return (
@@ -23,20 +21,20 @@ export default function List({ items, handleUpdate }: ListProps) {
         <ul className="divide-y">
           {items.map((item) => (
             <li
-              onClick={() => handleClick(item.id)}
-              key={item.id}
+              onClick={() => handleClick()}
+              key={item.Id}
               className={`p-4 ${
-                item.completed ? "bg-muted" : "hover:bg-muted/50"
+                false ? "bg-muted" : "hover:bg-muted/50"
               } cursor-pointer`}
             >
               <div
                 className={` ${
-                  item.completed ? "decoration-dashed" : "text-blue-600"
+                  false ? "decoration-dashed" : "text-blue-600"
                 }"font-medium"`}
               >
-                {item.title}
+                {item.Title}
               </div>
-              <div className="text-sm text-muted-foreground">{item.desc}</div>
+              <div className="text-sm text-muted-foreground">{item.Desc}</div>
             </li>
           ))}
         </ul>

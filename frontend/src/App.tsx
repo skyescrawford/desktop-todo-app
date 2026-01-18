@@ -1,52 +1,48 @@
 import { Button } from "@/components/ui/button";
 import List from "@/components/List.tsx";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import type { KeyboardEvent } from "react";
+import { AddTodo, ListTodo } from "../wailsjs/go/main/repository";
+import { main } from "../wailsjs/go/models";
 
 export type Todo = {
   id: string;
   title: string;
   desc: string;
-  completed: boolean;
+  completed?: boolean;
   createdAt?: Date;
   completedAt?: Date;
 };
 
 const App = () => {
-  const [todos, setTodos] = useState<Todo[]>([
-    {
-      id: uuid(),
-      title: "Fried Rice",
-      desc: "With egg and chicken",
-      completed: false,
-    },
-    {
-      id: uuid(),
-      title: "Meatball",
-      desc: "Beef meatballs with soup",
-      completed: false,
-    },
-    { id: uuid(), title: "Noodle", desc: "Spicy noodle", completed: true },
-  ]);
+  const [todos, setTodos] = useState<main.Todo[]>([]);
   const [title, setTitle] = useState("");
 
-  function handleAddTodo() {
-    const cleanTitle = title.trim();
-    if (!cleanTitle) {
-      return;
-    }
-    const todo: Todo = {
-      id: uuid(),
-      title: cleanTitle,
-      desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-      completed: false,
-      createdAt: new Date(),
-    };
+  useEffect(() => {
+    ListTodo().then((data) => setTodos(data));
+  }, []);
 
-    setTodos((prev) => [...prev, todo]);
-    setTitle("");
+  async function handleAddTodo() {
+    try {
+      const cleanTitle = title.trim();
+      if (!cleanTitle) {
+        return;
+      }
+      const todo: main.Todo = {
+        Id: uuid(),
+        Title: cleanTitle,
+        Desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+      };
+
+      await AddTodo(todo);
+      const td = await ListTodo();
+      setTodos(td);
+      setTitle("");
+    } catch (error) {
+      console.log(error);
+    }
   }
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
@@ -68,7 +64,7 @@ const App = () => {
           Add Todo
         </Button>
       </div>
-      <List items={todos} handleUpdate={setTodos} />
+      {todos && <List items={todos} handleUpdate={setTodos} />}
     </div>
   );
 };
