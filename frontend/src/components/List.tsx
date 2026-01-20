@@ -1,18 +1,31 @@
 import { Card, CardContent } from "@/components/ui/card";
-// import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Todo } from "@/App";
 import type { Dispatch, SetStateAction } from "react";
-import { main } from "../../wailsjs/go/models";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+// import { main } from "../../wailsjs/go/models";
+import { DeleteTodo } from "../../wailsjs/go/main/App";
+import type { repository } from "wailsjs/go/models";
 
 type ListProps = {
-  items: main.Todo[];
-  handleUpdate: Dispatch<SetStateAction<main.Todo[]>>;
+  items: Todo[];
+  setTodos: Dispatch<SetStateAction<Todo[]>>;
+  listTodos: () => Promise<Array<repository.Todo>>;
 };
 
-export default function List({ items, handleUpdate }: ListProps) {
-  function handleClick() {
-    const copy = items.slice(0);
-
-    handleUpdate(copy);
+export default function List({ items, setTodos, listTodos }: ListProps) {
+  async function handleDelete(id: string) {
+    try {
+      DeleteTodo(id)
+        .then((res) => {
+          console.log(`Delete ${res === null ? "success" : "failed"}`);
+          listTodos()
+            .then((data) => setTodos(data))
+            .catch((err) => console.log("error fetch", err));
+        })
+        .catch((err) => console.log("error delete", err));
+    } catch (error) {
+      console.log(error);
+    }
   }
   return (
     <Card className="w-90">
@@ -21,8 +34,8 @@ export default function List({ items, handleUpdate }: ListProps) {
         <ul className="divide-y">
           {items.map((item) => (
             <li
-              onClick={() => handleClick()}
-              key={item.Id}
+              onClick={() => handleDelete(item.id)}
+              key={item.id}
               className={`p-4 ${
                 false ? "bg-muted" : "hover:bg-muted/50"
               } cursor-pointer`}
@@ -32,10 +45,10 @@ export default function List({ items, handleUpdate }: ListProps) {
                   false ? "decoration-dashed" : "text-blue-600"
                 }"font-medium"`}
               >
-                {item.Title}
+                {item.title}
               </div>
               <div className="text-sm text-muted-foreground">
-                {item.Description}
+                {item.description}
               </div>
             </li>
           ))}

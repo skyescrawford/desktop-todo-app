@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"skyes-app/internal/storage"
 
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -63,9 +64,21 @@ func initDB(ctx context.Context) {
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+
+	db, err := storage.OpenDB("todo-app")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = storage.Migrate(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app := NewApp(db)
+
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:            "todo app",
 		Width:            720,
 		Height:           768,

@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import type { KeyboardEvent } from "react";
-import { AddTodo, ListTodo } from "../wailsjs/go/main/App";
-import { main } from "../wailsjs/go/models";
+import { repository } from "../wailsjs/go/models";
+import { CreateTodo, ListTodos } from "../wailsjs/go/main/App";
 
 export type Todo = {
   id: string;
@@ -16,12 +16,32 @@ export type Todo = {
   completedAt?: Date;
 };
 
+// const todoList: Todo[] = [
+//   {
+//     id: uuid(),
+//     title: "running",
+//     description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+//   },
+//   {
+//     id: uuid(),
+//     title: "walking",
+//     description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+//   },
+//   {
+//     id: uuid(),
+//     title: "sleeping",
+//     description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+//   },
+// ];
+
 const App = () => {
-  const [todos, setTodos] = useState<main.Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
 
   useEffect(() => {
-    ListTodo().then((data) => setTodos(data));
+    ListTodos()
+      .then((list) => setTodos(list))
+      .then((err) => console.log(err));
   }, []);
 
   async function handleAddTodo() {
@@ -30,16 +50,19 @@ const App = () => {
       if (!cleanTitle) {
         return;
       }
-      const todo: main.Todo = {
-        Id: uuid(),
-        Title: cleanTitle,
-        Description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+      const todo = {
+        id: uuid(),
+        title: cleanTitle,
+        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
       };
 
-      const res = await AddTodo(todo);
-      console.log(res);
+      const td = new repository.Todo(todo);
 
+      await CreateTodo(td);
       setTitle("");
+      ListTodos()
+        .then((list) => setTodos(list))
+        .then((err) => console.log(err));
     } catch (error) {
       console.log(error);
     }
@@ -47,8 +70,8 @@ const App = () => {
 
   async function fetchTodo() {
     try {
-      const td = await ListTodo();
-      console.log("aymmm", td);
+      const td = await ListTodos();
+      console.log("todos", td);
     } catch (error) {
       console.log(error);
     }
@@ -74,11 +97,13 @@ const App = () => {
           Add Todo
         </Button>
 
-        <Button className="cursor-pointer" onClick={() => fetchTodo()}>
+        <Button className="cursor-pointer" onClick={fetchTodo}>
           Fetch Todos
         </Button>
       </div>
-      {todos && <List items={todos} handleUpdate={setTodos} />}
+      {todos && (
+        <List items={todos} setTodos={setTodos} listTodos={ListTodos} />
+      )}
     </div>
   );
 };
