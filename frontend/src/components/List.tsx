@@ -4,6 +4,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import type { Todo } from "@/App";
 import type { Dispatch, SetStateAction } from "react";
 import { SquarePen, Trash } from "lucide-react";
+import { DeleteTodo } from "../../wailsjs/go/main/App";
 
 // import { ScrollArea } from "@/components/ui/scroll-area";
 // import { main } from "../../wailsjs/go/models";
@@ -24,23 +25,23 @@ export default function List({
   open,
   setOpen,
   setSelectedTodo,
-}: // setTodos,
-// listTodos,
-ListProps) {
-  // async function handleDelete(id: string) {
-  //   try {
-  //     DeleteTodo(id)
-  //       .then((res) => {
-  //         console.log(`Delete ${res === null ? "success" : "failed"}`);
-  //         listTodos()
-  //           .then((data) => setTodos(data))
-  //           .catch((err) => console.log("error fetch", err));
-  //       })
-  //       .catch((err) => console.log("error delete", err));
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  setTodos,
+  listTodos,
+}: ListProps) {
+  function handleDelete(id: string) {
+    try {
+      DeleteTodo(id)
+        .then((res) => {
+          console.log(`Delete ${res === null ? "success" : "failed"}`);
+          listTodos()
+            .then((data) => setTodos(data))
+            .catch((err) => console.log("error fetch", err));
+        })
+        .catch((err) => console.log("error delete", err));
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <Card className="w-90">
       <CardContent className="p-0">
@@ -83,6 +84,7 @@ ListProps) {
                     variant="outline"
                     size="icon"
                     aria-label="Delete"
+                    onClick={() => handleDelete(item.id)}
                   >
                     <Trash />
                   </Button>
